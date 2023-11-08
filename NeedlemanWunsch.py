@@ -81,9 +81,9 @@ for x in range(1, num1 + 1):
     elif wartosc == macierz[x][y-1] + gap_value:
       pochodzenie[x][y] = 'l'
 
-print("matrix")
+print("matrix: ")
 print(macierz)
-print("direction")
+print("direction: ")
 print(pochodzenie)
 
 #Znalezienie rozwi�zania
@@ -168,8 +168,9 @@ while i > 0:
   align2 += seq2[i-1]
   i -= 1
 '''
-print('align2', align2[::-1])
-print('align1', align1[::-1])
+
+print('align 1: ', align1[::-1])
+print('align 2: ', align2[::-1])
 
 final_score = 0
 
