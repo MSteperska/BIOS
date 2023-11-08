@@ -13,28 +13,12 @@ def match_val(val_1, val_2):
 
 #wczytywanie danych z pliku
 if len(sys.argv) < 2:
-  print("Invalid input")
+  print("Missing input")
 else:
   fasta_file = sys.argv[1]
-
-'''
-with open(fasta_file, 'r') as file:
-  seq1 = ''
-  seq2 = ''
-  curr = None
-
-  for line in file:
-    line = line.strip()
-
-    if line.startswith('>'):
-      if curr is None:
-        curr = seq1
-      else:
-        curr = seq2
-      curr = ''
-    else:
-      curr += line
-      '''
+  match_value = int(sys.argv[2])
+  mismatch_value = int(sys.argv[3])
+  gap_value = int(sys.argv[4])
 
 file = open(fasta_file, 'r')
 seq1 = ''
