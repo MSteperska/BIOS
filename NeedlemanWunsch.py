@@ -1,16 +1,23 @@
 import numpy as np #biblioteka do macierzy
 import sys
 
-#seq1 = 'CCGAACGA'
-#seq2 = 'CAAGAC'
+match_value = 1
+mismatch_value = -1
+gap_value = -2
 
-'''
+def match_val(val_1, val_2):
+  if val_1 == val_2:
+    return match_value
+  else:
+    return mismatch_value
+
 #wczytywanie danych z pliku
 if len(sys.argv) < 2:
-  print("Nie podano pliku wejœciowego.")
+  print("Invalid input")
 else:
   fasta_file = sys.argv[1]
 
+'''
 with open(fasta_file, 'r') as file:
   seq1 = ''
   seq2 = ''
@@ -19,7 +26,7 @@ with open(fasta_file, 'r') as file:
   for line in file:
     line = line.strip()
 
-    if line.startwith('>'):
+    if line.startswith('>'):
       if curr is None:
         curr = seq1
       else:
@@ -27,54 +34,41 @@ with open(fasta_file, 'r') as file:
       curr = ''
     else:
       curr += line
+      '''
 
+file = open(fasta_file, 'r')
+seq1 = ''
+seq2 = ''
+curr = None
+
+for line in file:
+  line = line.strip()
+  if not line.startswith('>'):
+    if seq1 == '':
+      seq1 = line
+    else:
+      seq2 = line
+      
 print('sequence 1: ', seq1)
 print('sequence 2: ', seq2)
-'''
-
-#seq1 = 'CCGAACGACGTACGAAGCTG'
-#seq2 = 'CAAGACTGCATGCATGACTC'
-#type(seq1)   output:  str
-
-seq1 = 'MVLSEGEWQLVLHVWAKVEA'
-seq2 = 'MNIFEMLRIDEGLRLKIYKD'
-
-#ustalenie d³ugoœci sekwencji
 num1 = len(seq1)
 num2 = len(seq2)
-#print(num1, num2)
 
-#ustalenie wartoœci score
-match_value = 1
-mismatch_value = -1
-gap_value = -2
-
-
-#utworzenie macierzy z samymi zerami
+#utworzenie macierzy do zastosowania algorytmu
 macierz = np.zeros((num1 + 1, num2 + 1), dtype = int)
-#macierz, z informacjami sk¹d pochodzi dana wartoœæ w macierzy
 pochodzenie = np.zeros((num1 + 1, num2 + 1), dtype = str)
 
-#uzupe³nienie pierwszego wiersza i pierwszej kolumny macierzy
 licznik = -1
 for i in range(1, num1 + 1):
   macierz[i][0] = licznik
   licznik = licznik - 1
-
 
 licznik = -1
 for i in range(1, num2 + 1):
   macierz[0][i] = licznik
   licznik = licznik - 1
 
-#funkcja okreœlaj¹ca wartoœæ dla score (match/mismatch po przek¹tnej)
-def match_val(val_1, val_2):
-  if val_1 == val_2:
-    return match_value
-  else:
-    return mismatch_value
-
-#uzupe³nianie macierzy
+#uzupelnianie macierzy
 for x in range(1, num1 + 1):
   for y in range(1, num2 + 1):
     score = match_val(seq1[x-1], seq2[y-1])
@@ -91,8 +85,7 @@ print(macierz)
 print("pochodzenie")
 print(pochodzenie)
 
-
-#Znalezienie rozwi¹zania
+#Znalezienie rozwiï¿½zania
 align1 = ''
 align2 = ''
 
@@ -127,7 +120,7 @@ while num1 > 0:
   align2 += '-'
   num1 -= 1
 '''
-#do poprawy bo i, j siê myl¹ i wszytsko siê pierdzieli :)
+#do poprawy bo i, j si myl i wszytsko si pierdzieli :)
 while i > 0 and j > 0:
 
   current_score = macierz[i][j]
@@ -137,8 +130,8 @@ while i > 0 and j > 0:
   left_score = macierz[i][j-1]
 
   if(current_score == diagonal_score + match_val(seq1[i-1], seq2[j-1])):
-    print(current_score, diagonal_score + match_val(seq1[i-1], seq2[j-1]), "czy wartoœci siê zgadzaj¹")
-    print("idziemy po przek¹tnej")
+    print(current_score, diagonal_score + match_val(seq1[i-1], seq2[j-1]), "czy wartoci si zgadzaj")
+    print("idziemy po przektnej")
     print(seq1[i-1], "Seq1", seq2[y-1], "seq2")
     align1 = align1 + seq1[j-1]
     align2 = align2 + seq2[i-1]
@@ -147,8 +140,8 @@ while i > 0 and j > 0:
     j = j - 1
     i = i - 1
   elif current_score == up_score - 1:
-    print(current_score, up_score -1, "czy wartoœci siê zgadzj¹")
-    print("idziemy do góry")
+    print(current_score, up_score -1, "czy wartoci si zgadzj")
+    print("idziemy do gry")
     print(seq1[i-1], "Seq1", seq2[y-1], "seq2")
     align1 = align1 + seq1[j-1]
     align2 = align2 + '-'
@@ -156,7 +149,7 @@ while i > 0 and j > 0:
     print('align1, up', align1)
     print('align2, up', align2)
   elif current_score == left_score - 1:
-    print(current_score, left_score - 1, "czy wartoœci siê zgadzaj¹")
+    print(current_score, left_score - 1, "czy wartoci si zgadzaj")
     print("idziemy w lewo")
     print(seq1[i-1], "Seq1", seq2[y-1], "seq2")
     align1 = align1 + '-'
@@ -184,9 +177,5 @@ for x in range(0, len(align1)):
     final_score += gap_value
   else:
     final_score += match_val(align1[x], align2[x])
-  '''if align1[x] == align2[x]:
-    final_score += 1
-  else:
-    final_score -= 1'''
 
 print("score: ", final_score)
