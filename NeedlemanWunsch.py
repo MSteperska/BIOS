@@ -81,8 +81,9 @@ for x in range(1, num1 + 1):
     elif wartosc == macierz[x][y-1] + gap_value:
       pochodzenie[x][y] = 'l'
 
+print("matrix")
 print(macierz)
-print("pochodzenie")
+print("direction")
 print(pochodzenie)
 
 #Znalezienie rozwi�zania
