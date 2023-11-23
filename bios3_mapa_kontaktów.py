@@ -67,60 +67,28 @@ plt.show()
 
 # pobranie struktury rna w formacie pdb
 
-pdb_id = '2HHB'
+pdb_id = '1EHZ'
 pdb_file_path = pdb_list.retrieve_pdb_file(pdb_id, file_format = 'pdb')
 structure = parser.get_structure(pdb_id, pdb_file_path)
 
 # liczenie kątów torsyjnych (kod poprawny tylko jeśli założenie O5' to piąty zapisany tlen w reszcie również jest poprawne)
 
-atomO = []
-atomC = []
-atomN = []
-atomP = []
-matrix = []
+matrix = np.zeros(len(structure.get_residues()), 6)
 
-for res in structure.get_residues():
-  atomO.append([])
-  atomC.append([])
-  atomN.append([])
-  atomP.append([])
+atoms = ["O3'", "P", "O5'", "C5", "C4", "C4"]
+vectors = [None, None, None, None, None, None]
+
+for r in (0, len(structure.get_residues()) - 1):
+  res = structure.get_residue(r)
   matrix.append([])
   for atom in res:
-    if atom == "O":
-      atomO.append(atom.get_vector())
-    if atom == "C":
-      atomC.append(atom.get_vector())
-    if atom == "N":
-      atomN.append(atom.get_vector())
-    if atom == "P":
-      atomP.append(atom.get_vector())
-
-rn = 0
-for res in structure.get_residues():
-  if len(atomO[rn]) > 4 and len(atomC[rn]) > 4 and len(atomP[rn]) > 0:
-    if rn > 0 and len(atomO[rn - 1]) > 2:
-      matrix.append(calc_dihedral(atomO[rn - 1][2], atomP[rn][0], atomO[rn][4], atomC[rn][4]))
-    else:
-      matrix.append(0)
-    matrix.append(calc_dihedral(atomP[rn][0], atomO[rn][4], atomC[rn][4], atomC[rn][3]))
-    matrix.append(calc_dihedral(atomO[rn][4], atomC[rn][4], atomC[rn][3], atomC[rn][2]))
-    matrix.append(calc_dihedral(atomC[rn][4], atomC[rn][3], atomC[rn][2], atomO[rn][2]))
-    if rn < len(matrix) - 2 and len(atomO[rn + 1]) > 4 and len(atomP[rn + 1]) > 0:
-      matrix.append(calc_dihedral(atomC[rn][3], atomC[rn][2], atomO[rn][2], atomP[rn + 1][0]))
-      matrix.append(calc_dihedral(atomC[rn][2], atomO[rn][2], atomP[rn + 1][0], atomO[rn + 1][4]))
-    else:
-      matrix.append(0)
-      matrix.append(0)
-    if len(atomN[rn]) > 8:
-      matrix.append(calc_dihedral(atomO[rn][3], atomC[rn][0], atomN[rn][8], atomC[rn][3]))
-    elif len(atomN[rn]) > 0:
-      matrix.append(calc_dihedral(atomO[rn][3], atomC[rn][0], atomN[rn][0], atomC[rn][1]))
-    else:
-      matrix.append(0)
-  #final incrementation
-  rn = rn + 1
+    for i in range(0, 5):
+      if atom.get_id == atoms[i]:
+        vectors[i] = atom.get_vector()
+        if vectors[(i - 1)%6] != None and vectors[(i - 2)%6] != None and vectors[(i - 3)%6] != None:
+          matrix[r,i] = calc_dihedral(vectors[i], vectors[(i - 1)%6], vectors[(i - 2)%6], vectors[(i - 3)%6])
   
-  # zapis do pliku
+# zapis do pliku
   
 file = open("output_matrix.txt", "w")
 for i in range(0, len(matrix) - 1):
