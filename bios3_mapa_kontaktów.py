@@ -1,6 +1,6 @@
 # wczytanie bibliotek
 
-from Bio.PDB import PDBList, PDBParser
+from Bio.PDB import PDBList, PDBParser, calc_dihedral
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -73,11 +73,28 @@ structure = parser.get_structure(pdb_id, pdb_file_path)
 
 # liczenie kątów torsyjnych (kod poprawny tylko jeśli założenie O5' to piąty zapisany tlen w reszcie również jest poprawne)
 
-matrix = np.zeros(len(structure.get_residues()), 6)
+r = 0
+for res in structure.get_residues():
+  r = r + 1
 
-atoms = ["O3'", "P", "O5'", "C5", "C4", "C4"]
+matrix = np.zeros((r, 6))
+
+atoms = ["O3'", "P", "O5'", "C5'", "C4'", "C3'"]
 vectors = [None, None, None, None, None, None]
 
+r = 0
+for res in structure.get_residues():
+  r = r + 1
+  for atom in res:
+    for i in range(0, 5):
+      if atom.get_name() == atoms[i]:
+        vectors[i] = atom.get_vector()
+        print(vectors)
+        if vectors[(i - 1)%6] != None and vectors[(i - 2)%6] != None and vectors[(i - 3)%6] != None:
+          print(calc_dihedral(vectors[i], vectors[(i - 1)%6], vectors[(i - 2)%6], vectors[(i - 3)%6]))
+          print(r)
+          matrix[r, (i - 3)%6] = calc_dihedral(vectors[i], vectors[(i - 1)%6], vectors[(i - 2)%6], vectors[(i - 3)%6])
+"""
 for r in (0, len(structure.get_residues()) - 1):
   res = structure.get_residue(r)
   matrix.append([])
@@ -87,15 +104,13 @@ for r in (0, len(structure.get_residues()) - 1):
         vectors[i] = atom.get_vector()
         if vectors[(i - 1)%6] != None and vectors[(i - 2)%6] != None and vectors[(i - 3)%6] != None:
           matrix[r,i] = calc_dihedral(vectors[i], vectors[(i - 1)%6], vectors[(i - 2)%6], vectors[(i - 3)%6])
-  
+"""
 # zapis do pliku
   
 file = open("output_matrix.txt", "w")
 for i in range(0, len(matrix) - 1):
   for j in range(0, len(matrix[i]) - 1):
     file.write(str(matrix[i][j]))
-    if j + 1 == len(matrix[i]):
-      file.write("\n")
-    else:
-      file.write(" - ")
+    file.write(" - ")
+  file.write("\n")
 file.close()
